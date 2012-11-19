@@ -12,93 +12,103 @@
 # Actions:
 #
 # Requires:
-# * package curl
+# * package wget
 #
 # Sample Usage:
 #
 # [Remember: No empty lines between comments and class definition]
 class jbossas (
-  $version = '7.1.1.Final',
+  $version = '7',
   # Mirror URL with trailing slash
-  # Will use curl to download, so 'file:///' is also possible not just 'http://'
-  $mirror_url = 'http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/',
+  # Will use wget to download, so 'file:///' is also possible not just 'http://'
+  $mirror_url = 'http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip',
   $bind_address = '127.0.0.1',
   $http_port = 8080,
   $https_port = 8443,
-  $enable_service = true)
+  $enable_service = true,
+  $user = 'jboss',
+  $group = 'jboss',
+  $download_dir = '/tmp/jboss',
+  $jboss_home = '/home/jboss',
+  $jboss_dirname = 'jboss'
+)
 {
-  $dir = "/usr/share/jboss-as"
-
-  package {
-    libtcnative-1: ensure => present;
-    libapr1:       ensure => present;
-  }
 
   class install {
-    $mirror_url_version = "${jbossas::mirror_url}jboss-as-${jbossas::version}.tar.gz"
-    $dist_dir = '/home/jbossas/tmp'
-    $dist_file = "${dist_dir}/jboss-as-${jbossas::version}.tar.gz"
+    $mirror_url_version='http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip'
+    $unzipped_dirname='jboss-as-7.1.1.Final'
+    case $version {
+      '4' : { $mirror_url_version='http://sourceforge.net/projects/jboss/files/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA.zip/download'
+	     $unzipped_dirname='jboss-4.2.3.GA'
+	}
+      '5' : { $mirror_url_version='http://sourceforge.net/projects/jboss/files/JBoss/JBoss-5.1.0.GA/jboss-5.1.0.GA.zip/download' }
+      '6' : { $mirror_url_version='http://download.jboss.org/jbossas/6.1/jboss-as-distribution-6.1.0.Final.zip' }
+      '7' : { $mirror_url_version='http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip' }
+    }	
+    $dist_file = "${jbossas::download_dir}/jboss-as-${jbossas::version}.zip"
 
-    notice "Download URL: $mirror_url_version"
-    notice "JBoss AS directory: $jbossas::dir"
+    notice "Download URL: ${mirror_url_version}"
+    notice "JBoss AS directory: ${jbossas::jboss_home}/${jbossas::jboss_dirname}"
 
     # Create group, user, and home folder
-    group { jbossas:
-      ensure => present
-    }
-    user { jbossas:
+    #group { "${jbossas::group}":
+    #  ensure => present
+    #}
+    user { "${jbossas::user}":
       ensure     => present,
       managehome => true,
-      gid        => 'jbossas',
-      require    => Group['jbossas'],
-      comment    => 'JBoss Application Server'
+      comment    => 'JBoss Application Server User'
     }
-    file { '/home/jbossas':
+    file { "${jbossas::jboss_home}":
       ensure  => present,
-      owner   => 'jbossas',
-      group   => 'jbossas',
+      owner   => $jbossas::user,
+      group   => $jbossas::group,
       mode    => 0775,
-      require => [ Group['jbossas'], User['jbossas'] ]
+      require => [ User[$jbossas::user] ]
     }
 
     # Download the JBoss AS distribution ~100MB file
-    file { $dist_dir:
+    file { "${jbossas::download_dir}":
       ensure  => directory,
-      owner   => 'jbossas',
-      group   => 'jbossas',
+      owner   => $jbossas::user,
+      group   => $jbossas::group,
       mode    => 0775,
-      require => [ Group['jbossas'], User['jbossas'] ]
+      require => [ User[$jbossas::user] ]
     }
     exec { download_jboss_as:
-      command   => "/usr/bin/curl -v --progress-bar -o '$dist_file' '$mirror_url_version'",
+      command   => "/usr/bin/curl -o ${dist_file} ${mirror_url_version}",
       creates   => $dist_file,
-      user      => 'jbossas',
+      user      => $jbossas::user,
       logoutput => true,
-      require   => [ Package['curl'], File[$dist_dir] ],
+      require   => [ Package['curl'], File["${jbossas::download_dir}"] ],
     }
 
     # Extract the JBoss AS distribution
     exec { extract_jboss_as:
-      command   => "/bin/tar -xz -f '$dist_file'",
-      creates   => "/home/jbossas/jboss-as-${jbossas::version}",
-      cwd       => '/home/jbossas',
-      user      => 'jbossas',
-      group     => 'jbossas',
+      command   => "/usr/bin/unzip -o '${dist_file}' -d ${jbossas::jboss_home}",
+      creates   => "${jbossas::jboss_home}/jboss-as-${jbossas::version}",
+      cwd       => $jbossas::jboss_home,
+      user      => $jbossas::user,
+      group     => $jbossas::group,
       logoutput => true,
-      unless    => "/usr/bin/test -d '$jbossas::dir'",
-      require   => [ Group['jbossas'], User['jbossas'], Exec['download_jboss_as'] ]
+      unless    => "/usr/bin/test -d ${jbossas::jboss_home}/jboss-as-${jbossas::version}",
+      require   => [ User[$jbossas::user], Exec['download_jboss_as'] ]
     }
+
+# TODO: unzipping to a named dir instead of unzip + renaming
+
     exec { move_jboss_home:
-      command   => "/bin/mv -v '/home/jbossas/jboss-as-${jbossas::version}' '${jbossas::dir}'",
-      creates   => $jbossas::dir,
+      command   => "/bin/mv -v '${jbossas::jboss_home}/${unzipped_dirname}' '${jbossas::jboss_home}/${jbossas::jboss_dirname}'",
+      creates   => "${jbossas::jboss_home}/${jbossas::jboss_dirname}",
       logoutput => true,
       require   => Exec['extract_jboss_as']
     }
-    file { "$jbossas::dir":
+    #change owner of the jboss home dir
+    file { "${jbossas::jboss_home}/${jbossas::jboss_dirname}":
       ensure  => directory,
-      owner   => 'jbossas',
-      group   => 'jbossas',
-      require => [ Group['jbossas'], User['jbossas'], Exec['move_jboss_home'] ]
+      owner   => $jbossas::user,
+      group   => $jbossas::group,
+      require => [ User[$jbossas::user], Exec['move_jboss_home'] ]
     }
 
   }
@@ -106,6 +116,7 @@ class jbossas (
   # init.d configuration for Ubuntu
   class initd {
     $jbossas_bind_address = $jbossas::bind_address
+    $jbossas_user	  = $jbossas::user
 
     file { '/etc/jboss-as':
       ensure => directory,
@@ -122,12 +133,12 @@ class jbossas (
     }
     file { '/var/run/jboss-as':
       ensure => directory,
-      owner  => 'jbossas',
-      group  => 'jbossas',
+      owner  => $jbossas::user,
+      group  => $jbossas::group,
       mode   => 0775
     }
     file { '/etc/init.d/jboss-as':
-      source  => 'puppet:///modules/jbossas/init.d/jboss-as-standalone.sh',
+      source  => 'puppet:///modules/jbossas/jboss-as-standalone.sh',
       owner   => 'root',
       group   => 'root',
       mode    => 0755,
@@ -139,11 +150,11 @@ class jbossas (
   include initd
 
   # Configure
-  notice "Bind address: $bind_address - HTTP Port: $http_port - HTTPS Port: $https_port"
+  notice "Bind address: ${bind_address} - HTTP Port: ${http_port} - HTTPS Port: ${https_port}"
   exec { jbossas_http_port:
   	command   => "/bin/sed -i -e 's/socket-binding name=\"http\" port=\"[0-9]\\+\"/socket-binding name=\"http\" port=\"${http_port}\"/' standalone/configuration/standalone.xml",
-    user      => 'jbossas',
-    cwd       => $dir,
+    user      => $jbossas::user,
+    cwd       => "${jbossas::jboss_home}/${jbossas::jboss_dirname}",
     logoutput => true,
     require   => Class['jbossas::install'],
     unless    => "/bin/grep 'socket-binding name=\"http\" port=\"${http_port}\"/' standalone/configuration/standalone.xml",
@@ -151,8 +162,8 @@ class jbossas (
   }
   exec { jbossas_https_port:
     command   => "/bin/sed -i -e 's/socket-binding name=\"https\" port=\"[0-9]\\+\"/socket-binding name=\"https\" port=\"${https_port}\"/' standalone/configuration/standalone.xml",
-    user      => 'jbossas',
-    cwd       => $dir,
+    user      => $jbossas::user,
+    cwd       => "${jboss_home}/${jbossas::jboss_dirname}",
     logoutput => true,
     require   => Class['jbossas::install'],
     unless    => "/bin/grep 'socket-binding name=\"https\" port=\"${https_port}\"/' standalone/configuration/standalone.xml",
@@ -162,8 +173,8 @@ class jbossas (
   service { jboss-as:
     enable => $enable_service,
     ensure => $enable_service ? { true => running, default => undef },
-    require => [ Class['jbossas::initd'], Exec['jbossas_http_port', 'jbossas_https_port'],
-                 Package['libtcnative-1', 'libapr1'] ]
+    require => [ Class['jbossas::initd'], Exec['jbossas_http_port', 'jbossas_https_port']
+                  ]
   }
 
   define virtual_server($default_web_module = '',
@@ -178,22 +189,24 @@ class jbossas (
         } else {
           $cli_args = inline_template("<% require 'json' %>alias=<%= aliases.to_json %>")
         }
-        notice "$jbossas::dir/bin/jboss-cli.sh -c --command='/subsystem=web/virtual-server=$name:add\\($cli_args\\)'"
+        notice "${jboss_home}/${jbossas::jboss_dirname}/bin/jboss-cli.sh -c --command='/subsystem=web/virtual-server=$name:add\\($cli_args\\)'"
         exec { "add jboss virtual-server $name":
-          command => "${jbossas::dir}/bin/jboss-cli.sh -c --command=/subsystem=web/virtual-server=$name:add\\($cli_args\\)",
-          user => 'jbossas', group => 'jbossas',
+          command => "${jbossas::jboss_home}/${jbossas::jboss_dirname}/bin/jboss-cli.sh -c --command=/subsystem=web/virtual-server=$name:add\\($cli_args\\)",
+          user => $jbossas::user, 
+	  group => $jbossas::group,
           logoutput => true,
-          unless => "/bin/sh ${jbossas::dir}/bin/jboss-cli.sh -c /subsystem=web/virtual-server=$name:read-resource | grep success",
+          unless => "/bin/sh ${jbossas::jboss_home}/${jbossas::jboss_dirname}/bin/jboss-cli.sh -c /subsystem=web/virtual-server=$name:read-resource | grep success",
           notify => Service['jboss-as'],
           provider => 'posix'
         }
       }
       'absent': {
         exec { "remove jboss virtual-server $name":
-          command => "${jbossas::dir}/bin/jboss-cli.sh -c '/subsystem=web/virtual-server=$name:remove()'",
-          user => 'jbossas', group => 'jbossas',
+          command => "${jbossas::jboss_home}/${jbossas::jboss_dirname}/bin/jboss-cli.sh -c '/subsystem=web/virtual-server=$name:remove()'",
+          user => $jbossas::user,
+	  group => $jbossas::group,
           logoutput => true,
-          onlyif => "/bin/sh ${jbossas::dir}/bin/jboss-cli.sh -c /subsystem=web/virtual-server=$name:read-resource | grep success",
+          onlyif => "/bin/sh ${jbossas::jboss_home}/${jbossas::jboss_dirname}/bin/jboss-cli.sh -c /subsystem=web/virtual-server=$name:read-resource | grep success",
           notify => Service['jboss-as'],
           provider => 'posix'
         }
