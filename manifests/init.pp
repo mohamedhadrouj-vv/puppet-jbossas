@@ -169,9 +169,8 @@ class jbossas (
   include initd
 
   # Configure
-  case $jbossas::version
   notice "Bind address: ${bind_address} - HTTP Port: ${http_port} - HTTPS Port: ${https_port}"
-
+  
   exec { "jboss-${jbossas::user}_http_port":
   	command   => "/bin/sed -i -e 's/socket-binding name=\"http\" port=\"[0-9]\\+\"/socket-binding name=\"http\" port=\"${http_port}\"/' standalone/configuration/standalone.xml",
     user      => $jbossas::user,
