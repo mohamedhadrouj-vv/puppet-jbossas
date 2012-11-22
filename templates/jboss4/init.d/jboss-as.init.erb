@@ -17,12 +17,13 @@
 #
 # Either modify this script for your requirements or just ensure that
 # the following variables are set correctly before calling the script.
+source "/etc/jboss-<%= jbossas_user %>/jboss-as.conf"
 
 #define where jboss is - this is the directory containing directories log, bin, conf etc
 JBOSS_HOME=${JBOSS_HOME:-"<%= jbossas_home %>/<%= jbossas_dirname %>"}
 
 #define the user under which jboss will run, or use 'RUNASIS' to run as the current user
-JBOSS_USER=${JBOSS_USER:-"<%= jbossas_user %>"}
+JBOSS_USER=${JBOSS_USER:-"jboss"}
 
 #make sure java is in your path
 JAVAPTH=${JAVAPTH:-"/usr/java/default/bin"}
@@ -31,7 +32,9 @@ JAVAPTH=${JAVAPTH:-"/usr/java/default/bin"}
 JBOSS_CONF=${JBOSS_CONF:-"default"}
 
 #bind jboss services to a specific IP address - added by pmc
-JBOSS_HOST=${JBOSS_HOST:-"127.0.0.1"}
+JBOSS_HOST=${JBOSS_BIND_ADDRESS:-"127.0.0.1"}
+
+JBOSS_BOOTSTRAP_JNP_PORT=${JBOSS_BOOTSTRAP_JNP_PORT:-"1099"}
 
 #if JBOSS_HOST specified, use -b to bind jboss services to that address
 JBOSS_BIND_ADDR=${JBOSS_HOST:+"-b $JBOSS_HOST"}
