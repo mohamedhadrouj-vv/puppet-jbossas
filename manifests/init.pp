@@ -78,9 +78,10 @@ define jbossas::server (
       enable => $enable_service,
       ensure => $enable_service ? { true => running, default => undef },
       hasstatus => false,
-      status => "ps aux | grep ${jboss_home}/jboss/bin/run.sh | grep -v grep",
+      status => "ps aux | grep ${jboss_home}/${jboss_dirname}/bin/run.sh | grep -v grep",
       require => jbossas::profile[$name],
-      subscribe => File['?????'],
+      #subscribe => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml",
+      #                  "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml"],
     }
 
 }
