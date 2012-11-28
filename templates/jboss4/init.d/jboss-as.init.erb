@@ -69,7 +69,7 @@ fi
 JBOSS_CONSOLE=${JBOSS_CONSOLE:-"/dev/null"}
 
 JBOSS_CMD_START="cd $JBOSS_HOME/bin; $JBOSSSH"
-JBOSS_CMD_STOP="$JBOSS_HOME/bin/shutdown.sh -S -s $JBOSS_HOST:1099" #TODO: change port
+JBOSS_CMD_STOP="$JBOSS_HOME/bin/shutdown.sh -S -s $JBOSS_HOST:$JBOSS_BOOTSTRAP_JNP_PORT"
 
 if [ -z "`echo $PATH | grep $JAVAPTH`" ]; then
   export PATH=$PATH:$JAVAPTH

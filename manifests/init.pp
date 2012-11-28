@@ -35,42 +35,52 @@ define jbossas::server (
   $base_web_container_http_port = 8080,
   $base_web_container_https_port = 8443,
   $base_web_container_ajp_port = 8009,
+  $delta,
 ){
 
     #Download and install Jboss
     jbossas::install { "${name}":
-           mirror_url => $mirror_url,
-           version  => $version,
-           download_dir  => $download_dir,
-           jboss_home => $jboss_home,
-           jboss_dirname => $jboss_dirname,
-           user => $user,
-           group => $group,
+       mirror_url => $mirror_url,
+       version  => $version,
+       download_dir  => $download_dir,
+       jboss_home => $jboss_home,
+       jboss_dirname => $jboss_dirname,
+       user => $user,
+       group => $group,
     }
 
     #Installs JBoss service
     jbossas::initd { "${name}":
-          bind_address => $bind_address,
-          user => $user,
-          group => $group,
-          jboss_home => $jboss_home,
-          jboss_dirname => $jboss_dirname,
-          jboss_profile_name => $jboss_profile_name,
-          version => $version,
+      bind_address => $bind_address,
+      user => $user,
+      group => $group,
+      jboss_home => $jboss_home,
+      jboss_dirname => $jboss_dirname,
+      jboss_profile_name => $jboss_profile_name,
+      version => $version,
+      base_bootstrap_jnp_port => $base_bootstrap_jnp_port,
+      delta => $delta,
+      require => jbossas::install[$name],
     }
 
     #Create a custom JBoss profile
     jbossas::profile { "${name}":
-          jboss_home => $jboss_home,
-          jboss_dirname => $jboss_dirname,
-          jboss_profile_name => $jboss_profile_name,
-          user => $user,
-          group => $group,
+      jboss_home => $jboss_home,
+      jboss_dirname => $jboss_dirname,
+      jboss_profile_name => $jboss_profile_name,
+      user => $user,
+      group => $group,
+      delta => $delta,
+      require => jbossas::initd[$name],
     }
 
     service { "jboss-${name}":
       enable => $enable_service,
       ensure => $enable_service ? { true => running, default => undef },
+      hasstatus => false,
+      status => "ps aux | grep ${jboss_home}/jboss/bin/run.sh | grep -v grep",
+      require => jbossas::profile[$name],
+      subscribe => File['?????'],
     }
 
 }
@@ -103,14 +113,6 @@ define jbossas::install (
       default => 'jboss-4.2.3.GA',
   }
 
-  $init_script = $version ? {
-      '4' => 'jbossas/jboss4/init.d/jboss-as.init.erb',
-      '5' => 'jbossas/jboss5/init.d/jboss-as-standalone.init.erb',
-      '6' => 'jbossas/jboss6/init.d/jboss-as-standalone.init.erb',
-      '7' => 'jbossas/jboss7/init.d/jboss-as-standalone.init.erb',
-      default => 'jbossas/jboss4/init.d/jboss-as.init.erb',
-  }
-
   $dist_file = "${download_dir}/${name}/jboss-as-${version}.zip"
 
   notice "Download URL: ${mirror_url_version}"
@@ -130,6 +132,7 @@ define jbossas::install (
     group   => $group,
     mode    => 0775,
   }
+
   # Download the JBoss AS distribution ~100MB file
   exec { "download_jboss_${user}":
     command   => "/usr/bin/curl --progress-bar -o ${dist_file} ${mirror_url_version} -L",
@@ -142,7 +145,7 @@ define jbossas::install (
 
   # Extract the JBoss AS distribution
   exec { "extract_jboss_${user}":
-    command   => "/usr/bin/unzip -o '${dist_file}' -d ${jboss_home}",
+    command   => "/usr/bin/unzip -q -o '${dist_file}' -d ${jboss_home}",
     creates   => "${jboss_home}/jboss-as-${version}",
     cwd       => $jboss_home,
     user      => $user,
@@ -180,6 +183,8 @@ define jbossas::initd (
     $jboss_dirname = 'jboss',
     $jboss_profile_name = 'production',
     $version = '4',
+    $base_bootstrap_jnp_port = 1099,
+    $delta,
   ){
 
   #TODO : delete below
@@ -189,8 +194,7 @@ define jbossas::initd (
   $jbossas_dirname 	    = $jboss_dirname
   $jbossas_profile_name = $jboss_profile_name
 
-  #TODO : Decalage de port
-  $bootstrap_jnp_service_port = $base_bootstrap_jnp_port
+  $bootstrap_jnp_service_port = $base_bootstrap_jnp_port  + $delta
 
   file { "/etc/jboss-${user}":
     ensure => directory,
@@ -212,7 +216,7 @@ define jbossas::initd (
     mode   => 0775,
   }
   file { "/etc/init.d/jboss-${user}":
-    content => template("jbossas/jboss${version}/etc/jboss-as.conf.erb"),  #TODO
+    content => template("jbossas/jboss${version}/init.d/jboss-as.init.erb"),  #TODO
     owner   => 'root',
     group   => 'root',
     mode    => 0755,
@@ -235,6 +239,7 @@ define jbossas::profile (
     $base_web_container_http_port = 8080,
     $base_web_container_https_port = 8443,
     $base_web_container_ajp_port = 8009,
+    $delta,
 ) {
   # Create new profile depending on JBoss version
   case $version {
@@ -253,6 +258,7 @@ define jbossas::profile (
                                 base_web_container_http_port => $base_web_container_http_port,
                                 base_web_container_https_port => $base_web_container_https_port,
                                 base_web_container_ajp_port => $base_web_container_ajp_port,
+                                delta => $delta,
             }
      }
      '5': { profile::jboss5 {"${name}": } }
@@ -272,6 +278,7 @@ define jbossas::profile (
                                 base_web_container_http_port => $base_web_container_http_port,
                                 base_web_container_https_port => $base_web_container_https_port,
                                 base_web_container_ajp_port => $base_web_container_ajp_port,
+                                delta => $delta,
             }
           }
      default: { profile::jboss4 {"${name}": } }
@@ -293,17 +300,16 @@ define jbossas::profile::jboss4 (
       $base_web_container_http_port = 8080,
       $base_web_container_https_port = 8443,
       $base_web_container_ajp_port = 8009,
+      $delta,
 ) {
     notice "Creating new JBoss custom profile..."
-    file{"${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}":
+
+    file{[ "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}",
+           "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy",
+           "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer" ] :
       ensure 	=> directory,
       owner  	=> $user,
       group  	=> $group,
-    }
-    file{"${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy":
-      ensure  => directory,
-      owner   => $user,
-      group   => $group,
     }
 
     notice "-Copying conf, lib directories from default profile..."
@@ -313,28 +319,28 @@ define jbossas::profile::jboss4 (
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
       logoutput       => true,
-      require         => file["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
+      require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
       unless          => "/usr/bin/test -d ${jboss_profile_name}/lib",
     }
     exec { "copy_conf_dir_${user}":
-      command		=> "/bin/cp -R default/conf ${jboss_profile_name}",
-      user		    => $user,
-      group         => $group,
-      cwd		    => "${jboss_home}/${jboss_dirname}/server",
-      logoutput	    => true,
-      require		=> file["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
-      unless		=> "/usr/bin/test -d ${jboss_profile_name}/conf",
+      command		  => "/bin/cp -R default/conf ${jboss_profile_name}",
+      user		      => $user,
+      group           => $group,
+      cwd		      => "${jboss_home}/${jboss_dirname}/server",
+      logoutput	      => true,
+      require		  => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
+      unless		  => "/usr/bin/test -d ${jboss_profile_name}/conf",
     }
 
     notice "-Copying deploy files from default profile..."
     exec { "copy_deploy_dir_${user}":
-      command         => "/bin/cp -R default/deploy/jboss-web.deployer ${jboss_profile_name}/deploy/",
+      command         => "/bin/cp -R default/deploy/jboss-web.deployer ${jboss_profile_name}/deploy",
       user            => $user,
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
       logoutput       => true,
-      require         => file["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
-      unless          => "/usr/bin/test -d ${jboss_profile_name}/deploy/jboss-web.deployer",
+      require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer"],
+      unless          => "/usr/bin/test -d ${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml",
     }
     exec { "copy_deploy_files_${user}":
       command         => "/bin/cp default/deploy/jbossjca-service.xml default/deploy/jboss-local-jdbc.rar default/deploy/jboss-xa-jdbc.rar default/deploy/jmx-invoker-service.xml default/deploy/sqlexception-service.xml ${jboss_profile_name}/deploy",
@@ -342,29 +348,22 @@ define jbossas::profile::jboss4 (
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
       logoutput       => true,
-      require         => file["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
+      require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer"],
       unless          => "/usr/bin/test -f ${jboss_profile_name}/deploy/jbossjca-service.xml",
     }
 
     notice "-Replacing vars in templates..."
-    #TODO : A supprimer
-    $env = 0
-    if $user =~ /^env(\d+)\./ {
-      $env = $1 + 0
-    }
-    #TODO : A supprimer
+    $dynamic_class_resource_loading_port = $base_dynamic_class_resource_loading_port + $delta
+    $bootstrap_jnp_port = $base_bootstrap_jnp_port + $delta
+    $rmi_port = $base_rmi_port + $delta
+    $rmi_jrmp_invoker_port = $base_rmi_jrmp_invoker_port + $delta
+    $pooled_invoker_port = $base_pooled_invoker_port + $delta
+    $jboss_remoting_connector_port = $base_jboss_remoting_connector_port + $delta
+    $web_container_http_port = $base_web_container_http_port + $delta
+    $web_container_https_port = $base_web_container_https_port + $delta
+    $web_container_ajp_port = $base_web_container_ajp_port + $delta
 
-    $dynamic_class_resource_loading_port = $base_dynamic_class_resource_loading_port + $env
-    $bootstrap_jnp_port = $base_bootstrap_jnp_port + $env
-    $rmi_port = $base_rmi_port + $env
-    $rmi_jrmp_invoker_port = $base_rmi_jrmp_invoker_port + $env
-    $pooled_invoker_port = $base_pooled_invoker_port + $env
-    $jboss_remoting_connector_port = $base_jboss_remoting_connector_port + $env
-    $web_container_http_port = $base_web_container_http_port + $env
-    $web_container_https_port = $base_web_container_https_port + $env
-    $web_container_ajp_port = $base_web_container_ajp_port + $env
-
-    file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/conf/jboss_service.xml":
+    file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/conf/jboss-service.xml":
       content => template('jbossas/jboss4/conf/jboss-service.xml.erb'),
       owner   => $user,
       group   => $group,
@@ -400,6 +399,7 @@ define jbossas::profile::jboss7 (
     $base_web_container_http_port = 8080,
     $base_web_container_https_port = 8443,
     $base_web_container_ajp_port = 8009,
+    $delta,
 ) {
   #TODO Replace Sed commands with erb templates
   exec { "jboss-${user}_http_port":
