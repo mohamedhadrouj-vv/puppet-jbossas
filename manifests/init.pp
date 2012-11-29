@@ -114,12 +114,21 @@ define jbossas::install (
       default => 'jboss-4.2.3.GA',
   }
 
+  $zipfile_checksum = $version ? {
+      '4' => 'a39e85981958fea2411e9346e218aa39',
+      '5' => '78322c75ca0c13002a04418b4a8bc920',
+      '6' => '2264e4d5ba448fa07716008d1452f1e7',
+      '7' => '175c92545454f4e7270821f4b8326c4e',
+      default => 'a39e85981958fea2411e9346e218aa39',
+  }
+
+
   $dist_file = "${download_dir}/${name}/jboss-as-${version}.zip"
 
   notice "Download URL: ${mirror_url_version}"
   notice "JBoss AS directory: ${jboss_home}/${jboss_dirname}"
 
-  # Create user, and home folder
+  # Create home folder
   file { "${jboss_home}":
     ensure  => present,
     owner   => $user,
@@ -132,6 +141,16 @@ define jbossas::install (
     owner   => $user,
     group   => $group,
     mode    => 0775,
+    require => File[$jboss_home],
+  }
+
+  #create md5sum file to check downloaded zip
+  file { "${dist_file}.md5sum":
+    content => "${zipfile_checksum}  ${dist_file}",
+    owner   => $user,
+    group   => $group,
+    mode    => 0775,
+    require => File["${download_dir}/${name}"],
   }
 
   # Download the JBoss AS distribution ~100MB file
@@ -140,8 +159,8 @@ define jbossas::install (
     creates   => $dist_file,
     user      => $user,
     logoutput => true,
-    unless    => "/usr/bin/test -d ${dist_file}",
-    require   => [ Package['curl'], File["${download_dir}/${name}"] ],
+    unless    => "/usr/bin/md5sum --check ${dist_file}.md5sum",
+    require   => [ Package['curl'], File["${download_dir}/${name}"],  File["${dist_file}.md5sum"] ],
   }
 
   # Extract the JBoss AS distribution
@@ -369,6 +388,7 @@ define jbossas::profile::jboss4 (
       owner   => $user,
       group   => $group,
       mode    => 0644,
+      require => Exec["copy_deploy_files_${user}"],
       #notify    => Service["jboss-${jbossas::user}"],
     }
     file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml":
@@ -376,6 +396,7 @@ define jbossas::profile::jboss4 (
       owner   => $user,
       group   => $group,
       mode    => 0644,
+      require => Exec["copy_deploy_dir_${user}"],
       #notify    => Service["jboss-${jbossas::user}"],
     }
 }
