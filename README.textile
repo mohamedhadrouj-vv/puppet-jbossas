@@ -1,11 +1,9 @@
 h1. JBoss AS Puppet Module
-
+This is a fork from the original projet at:
 "soluvas/puppet-jbossas Project on GitHub":https://github.com/soluvas/puppet-jbossas
 
 h2. Installation
-
-1. Clone from git: @git://github.com/soluvas/puppet-jbossas.git@
-2. Make a symlink in @/etc/puppet/modules/jbossas@ -> @/home/ceefour/git/puppet-jbossas@
+TBD
 
 h2. Dependencies
 
@@ -14,59 +12,10 @@ h2. Dependencies
 
 h2. Usage
 
-Typical production settings:
-
-bc. 
-  package {
-    curl:                   ensure => present;
-    daemon:                 ensure => present;
-    openjdk-7-jre-headless: ensure => present;
-  }
-  class { jbossas:
-    bind_address => '127.0.0.1',
-  }
-  Package['openjdk-7-jre-headless'] -> Class['jbossas']
-
-Typical development settings:
-
-bc. 
-class { jbossas: }
+TBD
 
 Available parameters and their default values:
 
 * @version@ = '7.1.1.Final'
-* @mirror_url@ = 'http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/'
-* @bind_address@ = '127.0.0.1'
-* @http_port@ = 8080
-* @https_port@ = 8443
 
-You can use your own mirror, can be HTTP, FTP, filesystem, or anything supported by @curl@:
-
-bc. class { jbossas:
-	mirror_url => 'file:///home/ceefour/Public/'
-}
-
-Recommended configuration for Soluvas & Bippo:
-
-bc. class { jbossas:
-	http_port => 9080,
-	https_port => 9443
-}
-
-h2. Virtual Server
-
-Example:
-
-bc. jbossas::virtual_server { satukancinta:
-	default_web_module => 'satukancinta-web',
-	aliases => ['satukancinta.dev', 'www.satukancinta.dev'],
-	ensure => present
-}
-
-Note that you still need to have @WEB-INF/jboss-web.xml@ in your webapp containing:
-
-bc. <jboss-web>
-	<virtual-host>satukancinta</virtual-host>
-</jboss-web>
-
-See: "Virtual Hosts with JBoss AS 7":https://community.jboss.org/wiki/VirtualHostsWithJBossAS7
+TBD
