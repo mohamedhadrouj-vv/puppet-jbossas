@@ -360,7 +360,7 @@ define jbossas::profile::jboss4 (
       cwd             => "${jboss_home}/${jboss_dirname}/server",
       logoutput       => true,
       require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer"],
-      unless          => "/usr/bin/test -d ${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml",
+      unless          => "/usr/bin/test -f ${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml",
     }
     exec { "copy_deploy_files_${user}":
       command         => "/bin/cp default/deploy/jbossjca-service.xml default/deploy/jboss-local-jdbc.rar default/deploy/jboss-xa-jdbc.rar default/deploy/jmx-invoker-service.xml default/deploy/sqlexception-service.xml ${jboss_profile_name}/deploy",
