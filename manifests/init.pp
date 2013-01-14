@@ -58,8 +58,7 @@ define jbossas::server (
       jboss_dirname => $jboss_dirname,
       jboss_profile_name => $jboss_profile_name,
       version => $version,
-      base_bootstrap_jnp_port => $base_bootstrap_jnp_port,
-      delta => $delta,
+      bootstrap_jnp_service_port => $base_bootstrap_jnp_port + $delta,
       require => jbossas::install[$name],
     }
 
@@ -68,6 +67,7 @@ define jbossas::server (
       jboss_home => $jboss_home,
       jboss_dirname => $jboss_dirname,
       jboss_profile_name => $jboss_profile_name,
+      base_bootstrap_jnp_port => $base_bootstrap_jnp_port,
       user => $user,
       group => $group,
       delta => $delta,
@@ -203,8 +203,7 @@ define jbossas::initd (
     $jboss_dirname = 'jboss',
     $jboss_profile_name = 'production',
     $version = '4',
-    $base_bootstrap_jnp_port = 1099,
-    $delta,
+    $bootstrap_jnp_service_port = 1099,
   ){
 
   #TODO : delete below
@@ -213,8 +212,6 @@ define jbossas::initd (
   $jbossas_home 	    = $jboss_home
   $jbossas_dirname 	    = $jboss_dirname
   $jbossas_profile_name = $jboss_profile_name
-
-  $bootstrap_jnp_service_port = $base_bootstrap_jnp_port  + $delta
 
   file { "/etc/jboss-${user}":
     ensure => directory,
@@ -373,6 +370,7 @@ define jbossas::profile::jboss4 (
     }
 
     notice "-Replacing vars in templates..."
+
     $dynamic_class_resource_loading_port = $base_dynamic_class_resource_loading_port + $delta
     $bootstrap_jnp_port = $base_bootstrap_jnp_port + $delta
     $rmi_port = $base_rmi_port + $delta
@@ -383,21 +381,35 @@ define jbossas::profile::jboss4 (
     $web_container_https_port = $base_web_container_https_port + $delta
     $web_container_ajp_port = $base_web_container_ajp_port + $delta
 
-    file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/conf/jboss-service.xml":
-      content => template('jbossas/jboss4/conf/jboss-service.xml.erb'),
-      owner   => $user,
-      group   => $group,
-      mode    => 0644,
-      require => Exec["copy_deploy_files_${user}"],
+    #the only purpse of this condition is ti ensure chaining
+    if $dynamic_class_resource_loading_port != undef
+        and $bootstrap_jnp_port != undef
+        and $rmi_port  != undef
+        and $rmi_jrmp_invoker_port  != undef
+        and $pooled_invoker_port  != undef
+        and $jboss_remoting_connector_port  != undef
+        and $pooled_invoker_port  != undef
+        and $jboss_remoting_connector_port  != undef
+        and $web_container_http_port  != undef
+        and $web_container_https_port  != undef
+        and $web_container_ajp_port  != undef
+    {
+      file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/conf/jboss-service.xml":
+        content => template('jbossas/jboss4/conf/jboss-service.xml.erb'),
+        owner   => $user,
+        group   => $group,
+        mode    => 0644,
+        require => Exec["copy_deploy_files_${user}"],
       #notify    => Service["jboss-${jbossas::user}"],
-    }
-    file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml":
-      content => template('jbossas/jboss4/deploy/jboss-web.deployer/server.xml.erb'),
-      owner   => $user,
-      group   => $group,
-      mode    => 0644,
-      require => Exec["copy_deploy_dir_${user}"],
+      }
+      file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml":
+        content => template('jbossas/jboss4/deploy/jboss-web.deployer/server.xml.erb'),
+        owner   => $user,
+        group   => $group,
+        mode    => 0644,
+        require => Exec["copy_deploy_dir_${user}"],
       #notify    => Service["jboss-${jbossas::user}"],
+      }
     }
 }
 
