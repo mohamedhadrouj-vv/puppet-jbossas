@@ -35,7 +35,6 @@ define jbossas::server (
   $base_web_container_http_port = 8080,
   $base_web_container_https_port = 8443,
   $base_web_container_ajp_port = 8009,
-  $delta,
 ){
 
     #Download and install Jboss
@@ -58,7 +57,7 @@ define jbossas::server (
       jboss_dirname => $jboss_dirname,
       jboss_profile_name => $jboss_profile_name,
       version => $version,
-      bootstrap_jnp_service_port => $base_bootstrap_jnp_port + $delta,
+      bootstrap_jnp_service_port => $base_bootstrap_jnp_port,
       require => jbossas::install[$name],
     }
 
@@ -70,7 +69,6 @@ define jbossas::server (
       base_bootstrap_jnp_port => $base_bootstrap_jnp_port,
       user => $user,
       group => $group,
-      delta => $delta,
       require => jbossas::initd[$name],
     }
 
@@ -256,7 +254,6 @@ define jbossas::profile (
     $base_web_container_http_port = 8080,
     $base_web_container_https_port = 8443,
     $base_web_container_ajp_port = 8009,
-    $delta,
 ) {
   # Create new profile depending on JBoss version
   case $version {
@@ -275,7 +272,6 @@ define jbossas::profile (
                                 base_web_container_http_port => $base_web_container_http_port,
                                 base_web_container_https_port => $base_web_container_https_port,
                                 base_web_container_ajp_port => $base_web_container_ajp_port,
-                                delta => $delta,
             }
      }
      '5': { profile::jboss5 {"${name}": } }
@@ -295,7 +291,6 @@ define jbossas::profile (
                                 base_web_container_http_port => $base_web_container_http_port,
                                 base_web_container_https_port => $base_web_container_https_port,
                                 base_web_container_ajp_port => $base_web_container_ajp_port,
-                                delta => $delta,
             }
           }
      default: { profile::jboss4 {"${name}": } }
@@ -317,7 +312,6 @@ define jbossas::profile::jboss4 (
       $base_web_container_http_port = 8080,
       $base_web_container_https_port = 8443,
       $base_web_container_ajp_port = 8009,
-      $delta,
 ) {
     notice "Creating new JBoss custom profile..."
 
@@ -371,15 +365,15 @@ define jbossas::profile::jboss4 (
 
     notice "-Replacing vars in templates..."
 
-    $dynamic_class_resource_loading_port = $base_dynamic_class_resource_loading_port + $delta
-    $bootstrap_jnp_port = $base_bootstrap_jnp_port + $delta
-    $rmi_port = $base_rmi_port + $delta
-    $rmi_jrmp_invoker_port = $base_rmi_jrmp_invoker_port + $delta
-    $pooled_invoker_port = $base_pooled_invoker_port + $delta
-    $jboss_remoting_connector_port = $base_jboss_remoting_connector_port + $delta
-    $web_container_http_port = $base_web_container_http_port + $delta
-    $web_container_https_port = $base_web_container_https_port + $delta
-    $web_container_ajp_port = $base_web_container_ajp_port + $delta
+    $dynamic_class_resource_loading_port = $base_dynamic_class_resource_loading_port
+    $bootstrap_jnp_port = $base_bootstrap_jnp_port
+    $rmi_port = $base_rmi_port
+    $rmi_jrmp_invoker_port = $base_rmi_jrmp_invoker_port
+    $pooled_invoker_port = $base_pooled_invoker_port
+    $jboss_remoting_connector_port = $base_jboss_remoting_connector_port
+    $web_container_http_port = $base_web_container_http_port
+    $web_container_https_port = $base_web_container_https_port
+    $web_container_ajp_port = $base_web_container_ajp_port
 
     #the only purpse of this condition is ti ensure chaining
     if $dynamic_class_resource_loading_port != undef
@@ -433,7 +427,6 @@ define jbossas::profile::jboss7 (
     $base_web_container_http_port = 8080,
     $base_web_container_https_port = 8443,
     $base_web_container_ajp_port = 8009,
-    $delta,
 ) {
   #TODO Replace Sed commands with erb templates
   exec { "jboss-${user}_http_port":
