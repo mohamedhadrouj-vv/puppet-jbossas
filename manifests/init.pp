@@ -17,7 +17,7 @@ define jbossas::server (
   $version = '4',
   # Mirror URL with trailing slash
   # Will use curl to download, so 'file:///' is also possible not just 'http://'
-  $mirror_url = 'http://sourceforge.net/projects/jboss/files/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA.zip/download',
+  $mirror_url = 'http://heanet.dl.sourceforge.net/project/jboss/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA-jdk6.zip',
   $bind_address = '127.0.0.1',
   $enable_service = true,
   $user = 'jboss',
@@ -96,7 +96,7 @@ define jbossas::install (
 
   #if $mirror_url == '' {
     $mirror_url_version = $version ? {
-      '4' => 'http://sourceforge.net/projects/jboss/files/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA.zip/download',
+      '4' => 'http://heanet.dl.sourceforge.net/project/jboss/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA-jdk6.zip',
       '5' => 'http://sourceforge.net/projects/jboss/files/JBoss/JBoss-5.1.0.GA/jboss-5.1.0.GA.zip/download',
       '6' => 'http://download.jboss.org/jbossas/6.1/jboss-as-distribution-6.1.0.Final.zip',
       '7' => 'http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip',
