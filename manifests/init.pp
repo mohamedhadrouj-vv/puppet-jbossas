@@ -157,6 +157,7 @@ define jbossas::install (
     creates   => $dist_file,
     user      => $user,
     logoutput => true,
+    timeout   => 0,
     unless    => "/usr/bin/md5sum --check ${dist_file}.md5sum",
     require   => [ Package['curl'], File["${download_dir}/${name}"],  File["${dist_file}.md5sum"] ],
   }
@@ -168,7 +169,7 @@ define jbossas::install (
     cwd       => $jboss_home,
     user      => $user,
     group     => $group,
-    logoutput => true,
+    logoutput => 'on_failure',
     unless    => "/usr/bin/test -d ${jboss_home}/${jboss_dirname}",
     require   => [ Exec["download_jboss_${user}"] ]
   }
@@ -178,7 +179,7 @@ define jbossas::install (
   exec { "move_jboss_home_${user}":
     command   => "/bin/mv -v '${jboss_home}/${unzipped_dirname}' '${jboss_home}/${jboss_dirname}'",
     creates   => "${jboss_home}/${jboss_dirname}",
-    logoutput => true,
+    logoutput => 'on_failure',
     unless    => "/usr/bin/test -d ${jboss_home}/${jboss_dirname}",
     require   => Exec["extract_jboss_${user}"]
   }
@@ -329,7 +330,7 @@ define jbossas::profile::jboss4 (
       user            => $user,
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
-      logoutput       => true,
+      logoutput       => 'on_failure',
       require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
       unless          => "/usr/bin/test -d ${jboss_profile_name}/lib",
     }
@@ -338,7 +339,7 @@ define jbossas::profile::jboss4 (
       user		      => $user,
       group           => $group,
       cwd		      => "${jboss_home}/${jboss_dirname}/server",
-      logoutput	      => true,
+      logoutput	      => 'on_failure',
       require		  => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}"],
       unless		  => "/usr/bin/test -d ${jboss_profile_name}/conf",
     }
@@ -349,7 +350,7 @@ define jbossas::profile::jboss4 (
       user            => $user,
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
-      logoutput       => true,
+      logoutput       => 'on_failure',
       require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer"],
       unless          => "/usr/bin/test -f ${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml",
     }
@@ -358,7 +359,7 @@ define jbossas::profile::jboss4 (
       user            => $user,
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
-      logoutput       => true,
+      logoutput       => 'on_failure',
       require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer"],
       unless          => "/usr/bin/test -f ${jboss_profile_name}/deploy/jbossjca-service.xml",
     }
@@ -434,7 +435,7 @@ define jbossas::profile::jboss7 (
     user      => $user,
     group      => $group,
     cwd       => "${jboss_home}/${jboss_dirname}",
-    logoutput => true,
+    logoutput => 'on_failure',
     #require   => Class['jbossas::install'],
     unless    => "/bin/grep 'socket-binding name=\"http\" port=\"${base_web_container_http_port}\"/' standalone/configuration/standalone.xml",
   }
@@ -444,7 +445,7 @@ define jbossas::profile::jboss7 (
     user      => $user,
     group      => $group,
     cwd       => "${jboss_home}/${jboss_dirname}",
-    logoutput => true,
+    logoutput => 'on_failure',
     #require   => Class['install'],
     unless    => "/bin/grep 'socket-binding name=\"https\" port=\"${base_web_container_https_port}\"/' standalone/configuration/standalone.xml",
   }
