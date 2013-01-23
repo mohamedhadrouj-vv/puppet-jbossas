@@ -35,17 +35,25 @@ define jbossas::server (
   $base_web_container_http_port = 8080,
   $base_web_container_https_port = 8443,
   $base_web_container_ajp_port = 8009,
+  $jvm_xms =128,
+  $jvm_xmx = 512,
+  $jvm_maxpermsize = 256,
+  $java_opts = {},
 ){
 
     #Download and install Jboss
     jbossas::install { "${name}":
-       mirror_url => $mirror_url,
-       version  => $version,
-       download_dir  => $download_dir,
-       jboss_home => $jboss_home,
-       jboss_dirname => $jboss_dirname,
-       user => $user,
-       group => $group,
+       mirror_url       => $mirror_url,
+       version          => $version,
+       download_dir     => $download_dir,
+       jboss_home       => $jboss_home,
+       jboss_dirname    => $jboss_dirname,
+       user             => $user,
+       group            => $group,
+       jvm_xms          => $jvm_xms,
+       jvm_xmx          => $jvm_xmx,
+       jvm_maxpermsize  => $jvm_maxpermsize,
+       java_opts        => $java_opts,
     }
 
     #Installs JBoss service
@@ -72,6 +80,14 @@ define jbossas::server (
       require => Jbossas::Initd[$name],
     }
 
+    #Cleanup JBoss from Jaxb
+    file {["${jboss_home}/${jboss_dirname}/lib/jaxb-api.jar",
+          "${jboss_home}/${jboss_dirname}/lib/jaxb-impl.jar",
+          "${jboss_home}/${jboss_dirname}/lib/endorsed/jaxb-api.jar"] :
+       ensure => absent,
+    }
+
+    #Create JBoss service + set it to run on boot
     service { "jboss-${name}":
       enable => $enable_service,
       ensure => $enable_service ? { true => running, default => undef },
@@ -92,6 +108,10 @@ define jbossas::install (
     $user = 'jboss',
     $group = 'jboss',
     $jboss_dirname = 'jboss',
+    $jvm_xms = '',
+    $jvm_xmx = '',
+    $jvm_maxpermsize = '',
+    $java_opts = {},
 ) {
 
   #if $mirror_url == '' {
@@ -191,6 +211,13 @@ define jbossas::install (
     require => [ Exec["move_jboss_home_${user}"] ]
   }
 
+  notice "Creating run.conf file..."
+  file { "${jboss_home}/${jboss_dirname}/bin/run.conf":
+    content => template("jbossas/jboss${version}/bin/run.conf.erb"),
+    owner   => $user,
+    group   => $group,
+    mode    => 0644,
+  }
 }
 
 # init.d configuration for CentOS
@@ -255,6 +282,7 @@ define jbossas::profile (
     $base_web_container_http_port = 8080,
     $base_web_container_https_port = 8443,
     $base_web_container_ajp_port = 8009,
+
 ) {
   # Create new profile depending on JBoss version
   case $version {
@@ -314,8 +342,8 @@ define jbossas::profile::jboss4 (
       $base_web_container_https_port = 8443,
       $base_web_container_ajp_port = 8009,
 ) {
-    notice "Creating new JBoss custom profile..."
 
+    notice "Creating new JBoss custom profile..."
     file{[ "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}",
            "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy",
            "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer" ] :
@@ -362,6 +390,14 @@ define jbossas::profile::jboss4 (
       logoutput       => 'on_failure',
       require         => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer"],
       unless          => "/usr/bin/test -f ${jboss_profile_name}/deploy/jbossjca-service.xml",
+    }
+
+    notice "Replacing Log4J config file..."
+    file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/conf/jboss-log4j.xml.erb":
+      content => template("jbossas/jboss4/conf/jboss-log4j.xml.erb"),
+      owner   => $user,
+      group   => $group,
+      mode    => 0644,
     }
 
     notice "-Replacing vars in templates..."
