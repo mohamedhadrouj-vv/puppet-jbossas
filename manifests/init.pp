@@ -84,16 +84,17 @@ define jbossas::server (
     file {["${jboss_home}/${jboss_dirname}/lib/jaxb-api.jar",
           "${jboss_home}/${jboss_dirname}/lib/jaxb-impl.jar",
           "${jboss_home}/${jboss_dirname}/lib/endorsed/jaxb-api.jar"] :
-       ensure => absent,
+       ensure   => absent,
+       require  => Jbossas::Profile["${name}"]
     }
 
     #Create JBoss service + set it to run on boot
     service { "jboss-${name}":
-      enable => $enable_service,
-      ensure => $enable_service ? { true => running, default => undef },
+      enable    => $enable_service,
+      ensure    => $enable_service ? { true => running, default => undef },
       hasstatus => false,
-      status => "ps aux | grep ${jboss_home}/${jboss_dirname}/bin/run.sh | grep -v grep",
-      require => Jbossas::Profile[$name],
+      status    => "ps aux | grep ${jboss_home}/${jboss_dirname}/bin/run.sh | grep -v grep",
+      require   => Jbossas::Profile[$name],
       #subscribe => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml",
       #                  "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml"],
     }
@@ -393,7 +394,7 @@ define jbossas::profile::jboss4 (
     }
 
     notice "Replacing Log4J config file..."
-    file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/conf/jboss-log4j.xml.erb":
+    file { "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/conf/jboss-log4j.xml":
       content => template("jbossas/jboss4/conf/jboss-log4j.xml.erb"),
       owner   => $user,
       group   => $group,
