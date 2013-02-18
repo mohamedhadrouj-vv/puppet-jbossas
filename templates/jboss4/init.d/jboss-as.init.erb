@@ -17,10 +17,10 @@
 #
 # Either modify this script for your requirements or just ensure that
 # the following variables are set correctly before calling the script.
-source "/etc/jboss-<%= jbossas_user %>/jboss-as.conf"
+source "/etc/jboss-<%= user %>/jboss-as.conf"
 
 #define where jboss is - this is the directory containing directories log, bin, conf etc
-JBOSS_HOME=${JBOSS_HOME:-"<%= jbossas_home %>/<%= jbossas_dirname %>"}
+JBOSS_HOME=${JBOSS_HOME:-"<%= jboss_home %>/<%= jboss_dirname %>"}
 
 #define the user under which jboss will run, or use 'RUNASIS' to run as the current user
 JBOSS_USER=${JBOSS_USER:-"jboss"}
@@ -137,9 +137,9 @@ start)
     echo JBOSS_CMD_START = $JBOSS_CMD_START
     cd $JBOSS_HOME/bin
     if [ -z "$SUBIT" ]; then
-        eval $JBOSS_CMD_START >${JBOSS_CONSOLE} 2>&1 &
+        eval $JBOSS_CMD_START >$JBOSS_CONSOLE 2>&1 &
     else
-        $SUBIT "$JBOSS_CMD_START >${JBOSS_CONSOLE} 2>&1 &"
+        $SUBIT "$JBOSS_CMD_START >$JBOSS_CONSOLE 2>&1 &"
     fi
     ;;
 stop)
@@ -147,9 +147,9 @@ stop)
     cd $JBOSS_HOME/bin
 #    $SUBIT "$JBOSS_CMD_STOP"
     if [ -z "$SUBIT" ]; then
-        eval $JBOSS_CMD_STOP >${JBOSS_CONSOLE} 2>&1 &
+        eval $JBOSS_CMD_STOP >$JBOSS_CONSOLE 2>&1 &
     else
-        $SUBIT "$JBOSS_CMD_STOP >${JBOSS_CONSOLE} 2>&1 &"
+        $SUBIT "$JBOSS_CMD_STOP >$JBOSS_CONSOLE 2>&1 &"
     fi
     stop
     ;;
