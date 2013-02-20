@@ -67,10 +67,12 @@ define jbossas::profile::jboss4 (
 
     notice "Replacing Log4J config file..."
     file { "${jboss_profile_path}/${jboss_profile_name}/conf/jboss-log4j.xml":
+      ensure  => present,
       content => template("jbossas/jboss4/conf/jboss-log4j.xml.erb"),
       owner   => $user,
       group   => $group,
       mode    => 0644,
+      require => Exec["copy_conf_dir_${user}"],
     }
 
     notice "-Replacing vars in templates..."
@@ -89,6 +91,7 @@ define jbossas::profile::jboss4 (
         and $web_container_ajp_port  != undef
     {
       file { "${jboss_profile_path}/${jboss_profile_name}/conf/jboss-service.xml":
+        ensure  => present,
         content => template('jbossas/jboss4/conf/jboss-service.xml.erb'),
         owner   => $user,
         group   => $group,
@@ -97,6 +100,7 @@ define jbossas::profile::jboss4 (
       #notify    => Service["jboss-${jbossas::user}"],
       }
       file { "${jboss_profile_path}/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml":
+        ensure  => present,
         content => template('jbossas/jboss4/deploy/jboss-web.deployer/server.xml.erb'),
         owner   => $user,
         group   => $group,
