@@ -5,6 +5,7 @@ define jbossas::instance (
     $enable_service                           = true,
     $user                                     = 'jboss',
     $group                                    = 'jboss',
+    $log_classes                              = {},
     $jboss_home                               = '/home/',
     $jboss_dirname                            = 'jboss',
     $jboss_profile_path                       = '/home/jboss/server',
@@ -45,6 +46,7 @@ define jbossas::instance (
       bootstrap_jnp_port => $bootstrap_jnp_service_port,
       user               => $user,
       group              => $group,
+      log_classes        => $log_classes,
       require            => Jbossas::Initd[$name],
     }
 

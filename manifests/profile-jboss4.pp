@@ -5,6 +5,7 @@ define jbossas::profile::jboss4 (
       $jboss_profile_name = 'production',
       $user = 'jboss',
       $group = 'jboss',
+      $log_classes = {},
       $dynamic_class_resource_loading_port = 8083,
       $bootstrap_jnp_port = 1099,
       $rmi_port = 1098,
