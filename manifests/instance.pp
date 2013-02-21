@@ -48,14 +48,6 @@ define jbossas::instance (
       require            => Jbossas::Initd[$name],
     }
 
-    #Cleanup JBoss from default Jaxb libs
-    file {["${jboss_home}/${jboss_dirname}/lib/jaxb-api.jar",
-           "${jboss_home}/${jboss_dirname}/lib/jaxb-impl.jar",
-           "${jboss_home}/${jboss_dirname}/lib/endorsed/jaxb-api.jar"] :
-          ensure   => absent,
-          require  => Jbossas::Profile["${name}"]
-    }
-
     file { "/etc/jboss-${user}":
       ensure => directory,
       owner  => 'root',
