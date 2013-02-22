@@ -36,6 +36,9 @@ JBOSS_HOST=${JBOSS_BIND_ADDRESS:-"127.0.0.1"}
 
 JBOSS_BOOTSTRAP_JNP_PORT=${JBOSS_BOOTSTRAP_JNP_PORT:-"1099"}
 
+#define the configuration file to be loaded for run.sh
+export RUN_CONF="/etc/jboss-<%= user %>/run.conf"
+
 #define the script to use to start jboss
 JBOSSSH=${JBOSSSH:-"$JBOSS_HOME/bin/run.sh -b $JBOSS_HOST -c $JBOSS_CONF"}
 

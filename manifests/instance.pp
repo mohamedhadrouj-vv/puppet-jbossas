@@ -72,13 +72,13 @@ define jbossas::instance (
       mode    => 0755,
     }
 
-    #notice "Creating run.conf file..."
-    #file { "${jboss_home}/${jboss_dirname}/bin/run.conf":
-    #  content => template("jbossas/jboss${version}/bin/run.conf.erb"),
-    #  owner   => $user,
-    #  group   => $group,
-    #  mode    => 0644,
-    #}
+    notice "Creating run.conf file..."
+    file { "/etc/jboss-${user}/run.conf":
+      content => template("jbossas/jboss${version}/bin/run.conf.erb"),
+      owner   => $user,
+      group   => $group,
+      mode    => 0644,
+    }
 
     #Create JBoss service + set it to run on boot
     service { "jboss-${name}":
@@ -86,7 +86,7 @@ define jbossas::instance (
       ensure    => $enable_service ? { true => running, default => undef },
       hasstatus => false,
       status    => "/bin/ps aux | /bin/grep ${jboss_home}/${jboss_dirname}/bin/run.sh | /bin/grep ${name} | /bin/grep -v grep",
-      require   => Jbossas::Profile[$name],
+      require   => [ Jbossas::Profile[$name], File["/etc/jboss-${user}/run.conf"] ],
       #subscribe => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml",
       #                  "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml"],
     }
