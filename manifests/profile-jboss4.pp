@@ -19,23 +19,23 @@ define jbossas::profile::jboss4 (
 
     notice "Creating new JBoss custom profile..."
     file{[ "${jboss_profile_path}/${jboss_profile_name}",
-           "${jboss_profile_path}/${jboss_profile_name}/deploy",
-           "${jboss_profile_path}/${jboss_profile_name}/deploy/jboss-web.deployer" ] :
+           "${jboss_profile_path}/${jboss_profile_name}/deploy"] :
       ensure 	=> directory,
       owner  	=> $user,
       group  	=> $group,
     }
 
-    notice "-Copying conf, lib directories from default profile..."
-    exec { "copy_lib_dir_${user}":
-      command         => "/bin/cp -R default/lib ${jboss_profile_path}/${jboss_profile_name}",
-      user            => $user,
-      group           => $group,
-      cwd             => "${jboss_home}/${jboss_dirname}/server",
-      logoutput       => 'on_failure',
-      require         => File["${jboss_profile_path}/${jboss_profile_name}"],
-      unless          => "/usr/bin/test -d ${jboss_profile_path}/${jboss_profile_name}/lib",
-    }
+    #notice "-Copying conf, lib directories from default profile..."
+    #exec { "copy_lib_dir_${user}":
+    #  command         => "/bin/cp -R default/lib ${jboss_profile_path}/${jboss_profile_name}",
+    #  user            => $user,
+    #  group           => $group,
+    #  cwd             => "${jboss_home}/${jboss_dirname}/server",
+    #  logoutput       => 'on_failure',
+    #  require         => File["${jboss_profile_path}/${jboss_profile_name}"],
+    #  unless          => "/usr/bin/test -d ${jboss_profile_path}/${jboss_profile_name}/lib",
+    #}
+
     exec { "copy_conf_dir_${user}":
       command		  => "/bin/cp -R default/conf ${jboss_profile_path}/${jboss_profile_name}",
       user		      => $user,
@@ -53,7 +53,7 @@ define jbossas::profile::jboss4 (
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
       logoutput       => 'on_failure',
-      require         => File["${jboss_profile_path}/${jboss_profile_name}/deploy/jboss-web.deployer"],
+      require         => File["${jboss_profile_path}/${jboss_profile_name}/deploy"],
       unless          => "/usr/bin/test -f ${jboss_profile_path}/${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml",
     }
     exec { "copy_deploy_files_${user}":
@@ -62,7 +62,7 @@ define jbossas::profile::jboss4 (
       group           => $group,
       cwd             => "${jboss_home}/${jboss_dirname}/server",
       logoutput       => 'on_failure',
-      require         => File["${jboss_profile_path}/${jboss_profile_name}/deploy/jboss-web.deployer"],
+      require         => File["${jboss_profile_path}/${jboss_profile_name}/deploy"],
       unless          => "/usr/bin/test -f ${jboss_profile_path}/${jboss_profile_name}/deploy/jbossjca-service.xml",
     }
 
