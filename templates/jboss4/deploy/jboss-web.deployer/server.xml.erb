@@ -158,6 +158,11 @@
                 cachedConnectionManagerObjectName="jboss.jca:service=CachedConnectionManager"
                 transactionManagerObjectName="jboss:service=TransactionManager" />
 
+            <Valve className="org.apache.catalina.connector.RemoteIpValve"
+                remoteIpHeader="x-forwarded-for"
+                remoteIpProxiesHeader="x-forwarded-by"
+                protocolHeader="x-forwarded-proto" />
+
          </Host>
 
       </Engine>
