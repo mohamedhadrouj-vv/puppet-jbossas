@@ -24,7 +24,7 @@ define jbossas::server (
   $download_dir = '/tmp/jboss',
   $jboss_home = '/home/jboss',
   $jboss_dirname = 'jboss',
-  $jsf_api_version = "1.2_15",
+  $jsf_api_version = '1.2_15',
 ){
 
     #Download and install Jboss
@@ -83,6 +83,33 @@ define jbossas::server (
       owner   => $user,
       group   => $group,
       require => [ Exec["jsf_api_impl_${name}"], Exec["jsf_api_${name}"] ],
+    }
+
+    $local_jbossweb_dir = "${jboss_home}/${jboss_dirname}/server/default/deploy/jboss-web.deployer/"
+    $tomcat_juli_url = "http://mirrors.ibiblio.org/pub/mirrors/maven2/org/apache/tomcat/extras/juli/6.0.13/juli-6.0.13.jar"
+    $tomcat_extras_url = "http://xebia-france.googlecode.com/files/xebia-tomcat-extras-1.0.0.jar"
+    #Download the Tomcat-Juli
+    exec { "download_tomcat_juli_${name}":
+      command   => "curl --progress-bar -O ${tomcat_juli_url} -L",
+      cwd       => "${local_jbossweb_dir}",
+      path      => "/usr/bin/",
+      user      => $user,
+      logoutput => true,
+      timeout   => 0,
+      unless    => "test -f juli-6.0.13.jar",
+      require   => [ Package['curl'] ],
+    }
+
+    #Download the Tomcat-Juli
+    exec { "download_tomcat_extras_${name}":
+      command   => "curl --progress-bar -O ${tomcat_extras_url} -L",
+      cwd       => "${local_jbossweb_dir}",
+      path      => "/usr/bin/",
+      user      => $user,
+      logoutput => true,
+      timeout   => 0,
+      unless    => "test -f xebia-tomcat-extras-1.0.0.jar",
+      require   => [ Package['curl'] ],
     }
 
 }
