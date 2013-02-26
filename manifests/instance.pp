@@ -3,6 +3,7 @@ define jbossas::instance (
     $version                                  = 4,
     $bind_address                             = '127.0.0.1',
     $enable_service                           = true,
+    $ensure_service                           = undef,
     $user                                     = 'jboss',
     $group                                    = 'jboss',
     $log_classes                              = {},
@@ -83,7 +84,7 @@ define jbossas::instance (
     #Create JBoss service + set it to run on boot
     service { "jboss-${name}":
       enable    => $enable_service,
-      ensure    => $enable_service ? { true => running, default => undef },
+      ensure    => $ensure_service,
       hasstatus => false,
       status    => "/bin/ps aux | /bin/grep ${jboss_home}/${jboss_dirname}/bin/run.sh | /bin/grep ${name} | /bin/grep -v grep",
       require   => [ Jbossas::Profile[$name], File["/etc/jboss-${user}/run.conf"] ],
