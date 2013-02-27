@@ -19,7 +19,8 @@ define jbossas::profile::jboss4 (
 
     notice "Creating new JBoss custom profile..."
     file{[ "${jboss_profile_path}/${jboss_profile_name}",
-           "${jboss_profile_path}/${jboss_profile_name}/deploy"] :
+           "${jboss_profile_path}/${jboss_profile_name}/deploy",
+           "${jboss_profile_path}/${jboss_profile_name}/conf"] :
       ensure 	=> directory,
       owner  	=> $user,
       group  	=> $group,
@@ -56,6 +57,7 @@ define jbossas::profile::jboss4 (
       require         => File["${jboss_profile_path}/${jboss_profile_name}/deploy"],
       unless          => "/usr/bin/test -f ${jboss_profile_path}/${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml",
     }
+
     exec { "copy_deploy_files_${user}":
       command         => "/bin/cp default/deploy/jbossjca-service.xml default/deploy/jboss-local-jdbc.rar default/deploy/jboss-xa-jdbc.rar default/deploy/jmx-invoker-service.xml default/deploy/sqlexception-service.xml ${jboss_profile_path}/${jboss_profile_name}/deploy",
       user            => $user,
@@ -100,6 +102,7 @@ define jbossas::profile::jboss4 (
         require => Exec["copy_deploy_files_${user}"],
       #notify    => Service["jboss-${jbossas::user}"],
       }
+
       file { "${jboss_profile_path}/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml":
         ensure  => present,
         content => template('jbossas/jboss4/deploy/jboss-web.deployer/server.xml.erb'),
