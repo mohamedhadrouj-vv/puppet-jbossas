@@ -17,7 +17,7 @@
 #
 # Either modify this script for your requirements or just ensure that
 # the following variables are set correctly before calling the script.
-source "/etc/jboss-<%= user %>/jboss-as.conf"
+source "<%= jboss_profile_path %>/<%= jboss_profile_name %>/conf/jboss-as.conf"
 
 #define where jboss is - this is the directory containing directories log, bin, conf etc
 JBOSS_HOME=${JBOSS_HOME:-"<%= jboss_home %>/<%= jboss_dirname %>"}
@@ -37,12 +37,12 @@ JBOSS_HOST=${JBOSS_BIND_ADDRESS:-"127.0.0.1"}
 JBOSS_BOOTSTRAP_JNP_PORT=${JBOSS_BOOTSTRAP_JNP_PORT:-"1099"}
 
 #define the configuration file to be loaded for run.sh
-EXPORT_RUN_CONF="export RUN_CONF=/etc/jboss-<%= user %>/run.conf"
+EXPORT_RUN_CONF="export RUN_CONF=<%= jboss_profile_path %>/<%= jboss_profile_name %>/conf/run.conf"
 
 #define the script to use to start jboss
 JBOSSSH=${JBOSSSH:-"$JBOSS_HOME/bin/run.sh -b $JBOSS_HOST -c $JBOSS_CONF"}
 
-if [ "$JBOSS_USER" = "RUNASIS" ]; then
+if [ "$JBOSS_USER" = "$(whoami)" ]; then
   SUBIT=""
 else
   SUBIT="su - $JBOSS_USER -c "

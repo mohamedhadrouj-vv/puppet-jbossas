@@ -51,18 +51,12 @@ define jbossas::instance (
       require            => Jbossas::Initd[$name],
     }
 
-    file { "/etc/jboss-${user}":
-      ensure => directory,
-      owner  => 'root',
-      group  => 'root',
-    }
-
-    file { "/etc/jboss-${user}/jboss-as.conf":
-      content => template("jbossas/jboss${version}/etc/jboss-as.conf.erb"),
-      owner   => 'root',
-      group   => 'root',
+    file { "${jboss_profile_path}/${jboss_profile_name}/conf/jboss-as.conf":
+      content => template("jbossas/jboss${version}/conf/jboss-as.conf.erb"),
+      owner   => $user,
+      group   => $group,
       mode    => 0644,
-      require => File["/etc/jboss-${user}"],
+      require => File["${jboss_profile_path}/${jboss_profile_name}/conf"],
       #notify  => Service["jboss-${user}"],
     }
 
@@ -74,11 +68,12 @@ define jbossas::instance (
     }
 
     notice "Creating run.conf file..."
-    file { "/etc/jboss-${user}/run.conf":
-      content => template("jbossas/jboss${version}/bin/run.conf.erb"),
+    file { "${jboss_profile_path}/${jboss_profile_name}/conf/run.conf":
+      content => template("jbossas/jboss${version}/conf/run.conf.erb"),
       owner   => $user,
       group   => $group,
       mode    => 0644,
+      require => File["${jboss_profile_path}/${jboss_profile_name}/conf"],
     }
 
     #Create JBoss service + set it to run on boot
@@ -87,7 +82,7 @@ define jbossas::instance (
       ensure    => $ensure_service,
       hasstatus => false,
       status    => "/bin/ps aux | /bin/grep ${jboss_home}/${jboss_dirname}/bin/run.sh | /bin/grep ${name} | /bin/grep -v grep",
-      require   => [ Jbossas::Profile[$name], File["/etc/jboss-${user}/run.conf"] ],
+      require   => [ Jbossas::Profile[$name], File["${jboss_profile_path}/${jboss_profile_name}/conf/run.conf"] ],
       #subscribe => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml",
       #                  "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml"],
     }
