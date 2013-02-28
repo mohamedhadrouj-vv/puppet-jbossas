@@ -60,7 +60,7 @@ define jbossas::server (
       logoutput => true,
       timeout   => 0,
       unless    => "test -f jsf-api-${jsf_api_version}.jar",
-      require   => [ Package['curl'] ],
+      require   => [ Jbossas::Install["${name}"] ],
     }
 
     exec { "jsf_api_impl_${name}":
@@ -71,7 +71,7 @@ define jbossas::server (
       logoutput => true,
       timeout   => 0,
       unless    => "test -f jsf-impl-${jsf_api_version}.jar",
-      require   => [ Package['curl'] ],
+      require   => [ Jbossas::Install["${name}"] ],
     }
 
     file { ["${local_jsf_dir}/jboss-faces.jar",
@@ -97,7 +97,7 @@ define jbossas::server (
       logoutput => true,
       timeout   => 0,
       unless    => "test -f juli-6.0.13.jar",
-      require   => [ Package['curl'] ],
+      require   => [ Jbossas::Install["${name}"] ],
     }
 
     #Download the Tomcat-Juli
@@ -109,7 +109,7 @@ define jbossas::server (
       logoutput => true,
       timeout   => 0,
       unless    => "test -f xebia-tomcat-extras-1.0.0.jar",
-      require   => [ Package['curl'] ],
+      require   => [ Jbossas::Install["${name}"] ],
     }
 
 }
