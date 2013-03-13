@@ -1,19 +1,18 @@
 # init.d configuration for CentOS
 define jbossas::initd (
-    $bind_address = '127.0.0.1',
+    $version = '4',
     $user = 'jboss',
-    $group = 'jboss',
     $jboss_home = '/home/jboss',
     $jboss_dirname = 'jboss',
     $jboss_profile_name = 'production',
-    $version = '4',
-    $bootstrap_jnp_service_port = 1099,
+    $jboss_profile_path = '/home/jboss',
   ){
 
-  file { "/var/run/jboss-${user}":
-    ensure => directory,
-    owner  => $user,
-    group  => $group,
-    mode   => 0775,
+  file { "/etc/init.d/jboss-${user}":
+    content => template("jbossas/jboss${version}/init.d/jboss-as.init.erb"),
+    owner   => 'root',
+    group   => 'root',
+    mode    => 0755,
   }
+
 }
