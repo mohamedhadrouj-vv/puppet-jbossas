@@ -26,16 +26,14 @@ define jbossas::instance (
     $web_container_ajp_port                   = 8009,
 ){
 
-    #Installs JBoss service
+    #Installs Jboss Init.d file
     jbossas::initd { "${name}":
-      bind_address                => $bind_address,
+      version                     => $version,
       user                        => $user,
-      group                       => $group,
       jboss_home                  => $jboss_home,
       jboss_dirname               => $jboss_dirname,
       jboss_profile_name          => $jboss_profile_name,
-      version                     => $version,
-      bootstrap_jnp_service_port  => $bootstrap_jnp_service_port,
+      jboss_profile_path          => $jboss_profile_path,
     }
 
     #Create a custom JBoss profile
@@ -58,13 +56,6 @@ define jbossas::instance (
       mode    => 0644,
       require => File["${jboss_profile_path}/${jboss_profile_name}/conf"],
       #notify  => Service["jboss-${user}"],
-    }
-
-    file { "/etc/init.d/jboss-${user}":
-      content => template("jbossas/jboss${version}/init.d/jboss-as.init.erb"),
-      owner   => 'root',
-      group   => 'root',
-      mode    => 0755,
     }
 
     notice "Creating run.conf file..."
