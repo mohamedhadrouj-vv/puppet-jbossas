@@ -73,7 +73,7 @@ define jbossas::instance (
       ensure    => $ensure_service,
       hasstatus => false,
       status    => "/bin/ps aux | /bin/grep ${jboss_home}/${jboss_dirname}/bin/run.sh | /bin/grep ${name} | /bin/grep -v grep",
-      require   => [ Jbossas::Profile[$name], File["${jboss_profile_path}/${jboss_profile_name}/conf/run.conf"] ],
+      require   => [ Jbossas::Initd[$name], Jbossas::Profile[$name], File["${jboss_profile_path}/${jboss_profile_name}/conf/run.conf"] ],
       #subscribe => File["${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/server.xml",
       #                  "${jboss_home}/${jboss_dirname}/server/${jboss_profile_name}/deploy/jboss-web.deployer/META-INF/jboss-service.xml"],
     }
