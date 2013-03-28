@@ -44,6 +44,7 @@ JBOSSSH=${JBOSSSH:-"$JBOSS_HOME/bin/run.sh -b $JBOSS_HOST -c $JBOSS_CONF"}
 
 if [ "$JBOSS_USER" = "$(whoami)" ]; then
   SUBIT=""
+  source "/home/$JBOSS_USER/.bashrc"
 else
   SUBIT="su - $JBOSS_USER -c "
 fi
