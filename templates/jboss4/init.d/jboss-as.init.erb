@@ -138,8 +138,22 @@ stop() {
 
 case "$1" in
 start)
+
+    #Checking if JBOSS is not already running for the same profile
+    /usr/bin/pgrep -f "$JBOSSSH"
+    if [ "$?" = "0" ]; then
+        echo -n -e "\nJBoss is already running\n"
+        exit 1
+    fi
+
+    if [ $pid != '0' ]; then
+        echo -n -e "\nJBoss is already running\n"
+        exit 1
+    fi
+
     echo JBOSS_CMD_START = $JBOSS_CMD_START
     cd $JBOSS_HOME/bin
+
     if [ -z "$SUBIT" ]; then
         eval $JBOSS_CMD_START >$JBOSS_CONSOLE 2>&1 &
     else
@@ -150,6 +164,7 @@ stop)
     echo JBOSS_CMD_STOP = $JBOSS_CMD_STOP
     cd $JBOSS_HOME/bin
 #    $SUBIT "$JBOSS_CMD_STOP"
+
     if [ -z "$SUBIT" ]; then
         eval $JBOSS_CMD_STOP >$JBOSS_CONSOLE 2>&1 &
     else
