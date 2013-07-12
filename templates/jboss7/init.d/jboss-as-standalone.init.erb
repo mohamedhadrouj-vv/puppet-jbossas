@@ -17,7 +17,7 @@ export JAVA_HOME
 
 # Load JBoss AS init.d configuration.
 if [ -z "$JBOSS_CONF" ]; then
-  JBOSS_CONF="/etc/jboss-<%= jbossas_user %>/jboss-as.conf"
+  JBOSS_CONF="/etc/jboss-<%= @jbossas_user %>/jboss-as.conf"
 fi
 
 [ -r "$JBOSS_CONF" ] && . "${JBOSS_CONF}"
@@ -25,17 +25,17 @@ fi
 # Set defaults.
 
 if [ -z "$JBOSS_HOME" ]; then
-  JBOSS_HOME=<%= jbossas_home %>/<%= jbossas_dirname %>
+  JBOSS_HOME=<%= @jbossas_home %>/<%= @jbossas_dirname %>
 fi
 export JBOSS_HOME
 
 if [ -z "$JBOSS_PIDFILE" ]; then
-  JBOSS_PIDFILE=/var/run/jboss-<%= jbossas_user %>/jboss-as-standalone.pid
+  JBOSS_PIDFILE=/var/run/jboss-<%= @jbossas_user %>/jboss-as-standalone.pid
 fi
 export JBOSS_PIDFILE
 
 if [ -z "$JBOSS_CONSOLE_LOG" ]; then
-  JBOSS_CONSOLE_LOG=/var/log/jboss-<%= jbossas_user %>/console.log
+  JBOSS_CONSOLE_LOG=/var/log/jboss-<%= @jbossas_user %>/console.log
 fi
 
 if [ -z "$STARTUP_WAIT" ]; then
@@ -52,10 +52,10 @@ fi
 
 JBOSS_SCRIPT=$JBOSS_HOME/bin/standalone.sh
 
-prog='jboss-<%= jbossas_user %>'
+prog='jboss-<%= @jbossas_user %>'
 
 CMD_PREFIX=''
-JBOSS_USER=<%= jbossas_user %>
+JBOSS_USER=<%= @jbossas_user %>
 
 if [ ! -z "$JBOSS_USER" ]; then
   if [ -x /etc/rc.d/init.d/functions ]; then

@@ -3,14 +3,14 @@
 
 # The username who should own the process.
 #
-JBOSS_USER=<%= jbossas_user %>
+JBOSS_USER=<%= @jbossas_user %>
 
 # 'public' interface Bind address
-JBOSS_BIND_ADDRESS=<%= jbossas_bind_address %>
+JBOSS_BIND_ADDRESS=<%= @jbossas_bind_address %>
 
-JBOSS_BOOTSTRAP_JNP_PORT=<%= bootstrap_jnp_service_port %>
+JBOSS_BOOTSTRAP_JNP_PORT=<%= @bootstrap_jnp_service_port %>
 
-JBOSS_CONF=<%= jbossas_profile_name %>
+JBOSS_CONF=<%= @jbossas_profile_name %>
 
 # The amount of time to wait for startup
 #

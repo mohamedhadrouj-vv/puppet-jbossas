@@ -68,9 +68,9 @@
       <priority value="DEBUG"/>
    </category>
 
-   <% log_classes.each do |key, value| %>
-   <category name="<%= key %>">
-      <priority value="<%= value %>"/>
+   <% @log_classes.each do |key, value| %>
+   <category name="<%= @key %>">
+      <priority value="<%= @value %>"/>
    </category>
    <% end %>
 

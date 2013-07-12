@@ -208,7 +208,7 @@
       name="jboss:service=WebService">
       <!-- The Bind address and Port -->
       <attribute name="BindAddress">${jboss.bind.address}</attribute>
-      <attribute name="Port"><%= dynamic_class_resource_loading_port %></attribute>
+      <attribute name="Port"><%= @dynamic_class_resource_loading_port %></attribute>
       <!--  The address to use for the host portion of the RMI codebase URL -->
       <attribute name="Host">${java.rmi.server.hostname}</attribute>
       <!-- Should non-EJB .class files be downloadable -->
@@ -249,13 +249,13 @@
       <!-- The listening port for the bootstrap JNP service. Set this to -1
          to run the NamingService without the JNP invoker listening port.
       -->
-      <attribute name="Port"><%= bootstrap_jnp_port %></attribute>
+      <attribute name="Port"><%= @bootstrap_jnp_port %></attribute>
       <!-- The bootstrap JNP server bind address. This also sets the default
          RMI service bind address. Empty == all addresses
       -->
       <attribute name="BindAddress">${jboss.bind.address}</attribute>
       <!-- The port of the RMI naming service, 0 == anonymous -->
-      <attribute name="RmiPort"><%= rmi_port %></attribute>
+      <attribute name="RmiPort"><%= @rmi_port %></attribute>
       <!-- The RMI service bind address. Empty == all addresses
       -->
       <attribute name="RmiBindAddress">${jboss.bind.address}</attribute>
@@ -424,7 +424,7 @@
    <!-- RMI/JRMP invoker -->
    <mbean code="org.jboss.invocation.jrmp.server.JRMPInvoker"
       name="jboss:service=invoker,type=jrmp">
-      <attribute name="RMIObjectPort"><%= rmi_jrmp_invoker_port %></attribute>
+      <attribute name="RMIObjectPort"><%= @rmi_jrmp_invoker_port %></attribute>
       <attribute name="ServerAddress">${jboss.bind.address}</attribute>
       <!--
       <attribute name="RMIClientSocketFactory">custom</attribute>
@@ -448,7 +448,7 @@
       <attribute name="ClientMaxPoolSize">300</attribute>
       <attribute name="SocketTimeout">60000</attribute>
       <attribute name="ServerBindAddress">${jboss.bind.address}</attribute>
-      <attribute name="ServerBindPort"><%= pooled_invoker_port %></attribute>
+      <attribute name="ServerBindPort"><%= @pooled_invoker_port %></attribute>
       <attribute name="ClientConnectAddress">${jboss.bind.address}</attribute>
       <attribute name="ClientConnectPort">0</attribute>
       <attribute name="ClientRetryCount">1</attribute>
@@ -508,7 +508,7 @@
                <!-- <attribute name="clientMaxPoolSize" isParam="true">304</attribute>-->
                <attribute name="socketTimeout" isParam="true">600000</attribute>
                <attribute name="serverBindAddress">${jboss.bind.address}</attribute>
-               <attribute name="serverBindPort"><%= jboss_remoting_connector_port %></attribute>
+               <attribute name="serverBindPort"><%= @jboss_remoting_connector_port %></attribute>
                <!-- <attribute name="clientConnectAddress">216.23.33.2</attribute> -->
                <!-- <attribute name="clientConnectPort">7777</attribute> -->
                <attribute name="enableTcpNoDelay" isParam="true">true</attribute>
