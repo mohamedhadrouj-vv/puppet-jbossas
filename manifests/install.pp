@@ -40,8 +40,8 @@ define jbossas::install (
 
   $dist_file = "${download_dir}/${name}/jboss-as-${version}.zip"
 
-  notice "Download URL: ${mirror_url_version}"
-  notice "JBoss AS directory: ${jboss_home}/${jboss_dirname}"
+  #notice "Download URL: ${mirror_url_version}"
+  #notice "JBoss AS directory: ${jboss_home}/${jboss_dirname}"
 
   # Create home folder
   file { "${jboss_home}":
@@ -109,7 +109,7 @@ define jbossas::install (
     require => [ Exec["move_jboss_home_${user}"] ]
   }
 
-  notice "Creating /var/run dir..."
+  #notice "Creating /var/run dir..."
   file { "/var/run/jboss-${user}":
     ensure => directory,
     owner  => $user,

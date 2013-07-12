@@ -17,7 +17,7 @@ define jbossas::profile::jboss4 (
       $web_container_ajp_port = 8009,
 ) {
 
-    notice "Creating new JBoss custom profile..."
+    #notice "Creating new JBoss custom profile..."
     file{[ "${jboss_profile_path}/${jboss_profile_name}",
            "${jboss_profile_path}/${jboss_profile_name}/deploy",
            "${jboss_profile_path}/${jboss_profile_name}/conf"] :
@@ -47,7 +47,7 @@ define jbossas::profile::jboss4 (
       unless		  => "/usr/bin/test -d ${jboss_profile_path}/${jboss_profile_name}/conf",
     }
 
-    notice "-Copying deploy files from default profile..."
+    #notice "-Copying deploy files from default profile..."
     exec { "copy_deploy_dir_${user}":
       command         => "/bin/cp -R default/deploy/jboss-web.deployer ${jboss_profile_path}/${jboss_profile_name}/deploy",
       user            => $user,
@@ -68,7 +68,7 @@ define jbossas::profile::jboss4 (
       unless          => "/usr/bin/test -f ${jboss_profile_path}/${jboss_profile_name}/deploy/jbossjca-service.xml",
     }
 
-    notice "Replacing Log4J config file..."
+    #notice "Replacing Log4J config file..."
     file { "${jboss_profile_path}/${jboss_profile_name}/conf/jboss-log4j.xml":
       ensure  => present,
       content => template("jbossas/jboss4/conf/jboss-log4j.xml.erb"),
@@ -78,7 +78,7 @@ define jbossas::profile::jboss4 (
       require => Exec["copy_conf_dir_${user}"],
     }
 
-    notice "-Replacing vars in templates..."
+    #notice "-Replacing vars in templates..."
 
     #the only purpose of this condition is to ensure chaining
     if $dynamic_class_resource_loading_port != undef

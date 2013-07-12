@@ -58,7 +58,7 @@ define jbossas::instance (
       #notify  => Service["jboss-${user}"],
     }
 
-    notice "Creating run.conf file..."
+    #notice "Creating run.conf file..."
     file { "${jboss_profile_path}/${jboss_profile_name}/conf/run.conf":
       content => template("jbossas/jboss${version}/conf/run.conf.erb"),
       owner   => $user,
