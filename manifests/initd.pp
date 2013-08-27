@@ -9,7 +9,7 @@ define jbossas::initd (
   ){
 
   file { "/etc/init.d/jboss-${user}":
-    content => template("jbossas/jboss${version}/init.d/jboss-as.init.erb"),
+    content => template("jbossas/jboss${ver}/init.d/jboss-as.init.erb"),
     owner   => 'root',
     group   => 'root',
     mode    => 0755,
