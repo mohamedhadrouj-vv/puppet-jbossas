@@ -1,6 +1,6 @@
 # init.d configuration for CentOS
 define jbossas::initd (
-    $version = '4',
+    $ver = '4',
     $user = 'jboss',
     $jboss_home = '/home/jboss',
     $jboss_dirname = 'jboss',
