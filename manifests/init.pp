@@ -14,9 +14,7 @@
 #
 # [Remember: No empty lines between comments and class definition]
 define jbossas::server (
-  $version = '4',
-  # Mirror URL with trailing slash
-  # Will use curl to download, so 'file:///' is also possible not just 'http://'
+  $ver = '4',
   $mirror_url = 'http://freefr.dl.sourceforge.net/project/jboss/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA-jdk6.zip',
   $bind_address = '127.0.0.1',
   $user = 'jboss',
