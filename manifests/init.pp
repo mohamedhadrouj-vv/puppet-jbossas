@@ -28,7 +28,7 @@ define jbossas::server (
     #Download and install Jboss
     jbossas::install { "${name}":
        mirror_url       => $mirror_url,
-       version          => $version,
+       ver              => $ver,
        download_dir     => $download_dir,
        jboss_home       => $jboss_home,
        jboss_dirname    => $jboss_dirname,
