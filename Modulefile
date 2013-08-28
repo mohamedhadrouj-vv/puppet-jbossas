@@ -1,5 +1,5 @@
 name 'puppet-jbossas'
-#version ''
+version '1.0'
 
 author 'Mohamed Hadrouj'
 license ''
