@@ -1,6 +1,6 @@
 # init.d configuration for CentOS
 define jbossas::instance (
-    $version                                  = 4,
+    $ver                                      = 4,
     $bind_address                             = '127.0.0.1',
     $enable_service                           = true,
     $ensure_service                           = undef,
@@ -28,7 +28,7 @@ define jbossas::instance (
 
     #Installs Jboss Init.d file
     jbossas::initd { "${name}":
-      version                     => $version,
+      ver                         => $ver,
       user                        => $user,
       jboss_home                  => $jboss_home,
       jboss_dirname               => $jboss_dirname,
@@ -50,7 +50,7 @@ define jbossas::instance (
     }
 
     file { "${jboss_profile_path}/${jboss_profile_name}/conf/jboss-as.conf":
-      content => template("jbossas/jboss${version}/conf/jboss-as.conf.erb"),
+      content => template("jbossas/jboss${ver}/conf/jboss-as.conf.erb"),
       owner   => $user,
       group   => $group,
       mode    => 0644,
@@ -60,7 +60,7 @@ define jbossas::instance (
 
     #notice "Creating run.conf file..."
     file { "${jboss_profile_path}/${jboss_profile_name}/conf/run.conf":
-      content => template("jbossas/jboss${version}/conf/run.conf.erb"),
+      content => template("jbossas/jboss${ver}/conf/run.conf.erb"),
       owner   => $user,
       group   => $group,
       mode    => 0644,
