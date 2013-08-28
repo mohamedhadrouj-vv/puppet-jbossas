@@ -1,5 +1,5 @@
 define jbossas::profile (
-    $version = '4',
+    $ver = '4',
     $jboss_home = '/home/jboss',
     $jboss_dirname = 'jboss',
     $jboss_profile_path = '/home/jboss/server',
@@ -19,7 +19,7 @@ define jbossas::profile (
 
 ) {
   # Create new profile depending on JBoss version
-  case $version {
+  case $ver {
      '4': {
             import "profile-jboss4"
             jbossas::profile::jboss4 {"${name}":
