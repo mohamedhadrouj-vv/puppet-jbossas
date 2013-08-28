@@ -1,6 +1,6 @@
 define jbossas::install (
     $mirror_url = 'http://freefr.dl.sourceforge.net/project/jboss/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA-jdk6.zip',
-    $version = '4',
+    $ver = '4',
     $download_dir = '/tmp/jboss',
     $jboss_home = '/home/jboss',
     $user = 'jboss',
@@ -12,7 +12,7 @@ define jbossas::install (
   # Following jBoss version determine mirror url, unzipped dir and checksum
   ##################
   #if $mirror_url == '' {
-    $mirror_url_version = $version ? {
+    $mirror_url_version = $ver ? {
       '4' => 'http://freefr.dl.sourceforge.net/project/jboss/JBoss/JBoss-4.2.3.GA/jboss-4.2.3.GA-jdk6.zip',
       '5' => 'http://sourceforge.net/projects/jboss/files/JBoss/JBoss-5.1.0.GA/jboss-5.1.0.GA.zip/download',
       '6' => 'http://download.jboss.org/jbossas/6.1/jboss-as-distribution-6.1.0.Final.zip',
@@ -21,7 +21,7 @@ define jbossas::install (
     }
   #}
 
-  $unzipped_dirname = $version ? {
+  $unzipped_dirname = $ver ? {
       '4' => 'jboss-4.2.3.GA',
       '5' => 'jboss-5.1.0.GA',
       '6' => 'jboss-as-distribution-6.1.0.Final',
@@ -29,7 +29,7 @@ define jbossas::install (
       default => 'jboss-4.2.3.GA',
   }
 
-  $zipfile_checksum = $version ? {
+  $zipfile_checksum = $ver ? {
       '4' => 'a39e85981958fea2411e9346e218aa39',
       '5' => '78322c75ca0c13002a04418b4a8bc920',
       '6' => '2264e4d5ba448fa07716008d1452f1e7',
@@ -38,7 +38,7 @@ define jbossas::install (
   }
 
 
-  $dist_file = "${download_dir}/${name}/jboss-as-${version}.zip"
+  $dist_file = "${download_dir}/${name}/jboss-as-${ver}.zip"
 
   #notice "Download URL: ${mirror_url_version}"
   #notice "JBoss AS directory: ${jboss_home}/${jboss_dirname}"
@@ -82,7 +82,7 @@ define jbossas::install (
   # Extract the JBoss AS distribution
   exec { "extract_jboss_${user}":
     command   => "/usr/bin/unzip -q -o '${dist_file}' -d ${jboss_home}",
-    creates   => "${jboss_home}/jboss-as-${version}",
+    creates   => "${jboss_home}/jboss-as-${ver}",
     cwd       => $jboss_home,
     user      => $user,
     group     => $group,
