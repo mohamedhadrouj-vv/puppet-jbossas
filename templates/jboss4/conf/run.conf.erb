@@ -43,9 +43,8 @@
 JAVA_OPTS="-Xms<%= @jvm_xms %>m -Xmx<%= @jvm_xmx %>m -XX:MaxPermSize=<%= @jvm_maxpermsize %>m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 "
 
 <% @java_opts.each do |key, value| %>
-# <%= @key %>
-JAVA_OPTS="$JAVA_OPTS <%= @value %>"
-
+# <%= key %>
+JAVA_OPTS="$JAVA_OPTS <%= value %>"
 <% end %>
 
 # Sample JPDA settings for remote socket debuging
