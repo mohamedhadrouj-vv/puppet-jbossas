@@ -26,16 +26,16 @@ define jbossas::profile::jboss4 (
       group  	=> $group,
     }
 
-    #notice "-Copying conf, lib directories from default profile..."
-    #exec { "copy_lib_dir_${user}":
-    #  command         => "/bin/cp -R default/lib ${jboss_profile_path}/${jboss_profile_name}",
-    #  user            => $user,
-    #  group           => $group,
-    #  cwd             => "${jboss_home}/${jboss_dirname}/server",
-    #  logoutput       => 'on_failure',
-    #  require         => File["${jboss_profile_path}/${jboss_profile_name}"],
-    #  unless          => "/usr/bin/test -d ${jboss_profile_path}/${jboss_profile_name}/lib",
-    #}
+    notice "-Copying conf, lib directories from default profile..."
+    exec { "copy_lib_dir_${user}":
+      command         => "/bin/cp -R default/lib ${jboss_profile_path}/${jboss_profile_name}",
+      user            => $user,
+      group           => $group,
+      cwd             => "${jboss_home}/${jboss_dirname}/server",
+      logoutput       => 'on_failure',
+      require         => File["${jboss_profile_path}/${jboss_profile_name}"],
+      unless          => "/usr/bin/test -d ${jboss_profile_path}/${jboss_profile_name}/lib",
+    }
 
     exec { "copy_conf_dir_${user}":
       command		  => "/bin/cp -R default/conf ${jboss_profile_path}/${jboss_profile_name}",
