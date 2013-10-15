@@ -19,14 +19,13 @@ define jbossas::profile::jboss4 (
 
     #notice "Creating new JBoss custom profile..."
     file{[ "${jboss_profile_path}/${jboss_profile_name}",
-           "${jboss_profile_path}/${jboss_profile_name}/deploy",
-           "${jboss_profile_path}/${jboss_profile_name}/conf"] :
+           "${jboss_profile_path}/${jboss_profile_name}/deploy"] :
       ensure 	=> directory,
       owner  	=> $user,
       group  	=> $group,
     }
 
-    notice "-Copying conf, lib directories from default profile..."
+    #notice "-Copying conf, lib directories from default profile..."
     exec { "copy_lib_dir_${user}":
       command         => "/bin/cp -R default/lib ${jboss_profile_path}/${jboss_profile_name}",
       user            => $user,
@@ -99,7 +98,7 @@ define jbossas::profile::jboss4 (
         owner   => $user,
         group   => $group,
         mode    => 0644,
-        require => Exec["copy_deploy_files_${user}"],
+        require => Exec["copy_conf_dir_${user}"],
       #notify    => Service["jboss-${jbossas::user}"],
       }
 

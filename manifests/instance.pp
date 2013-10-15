@@ -54,7 +54,7 @@ define jbossas::instance (
       owner   => $user,
       group   => $group,
       mode    => 0644,
-      require => File["${jboss_profile_path}/${jboss_profile_name}/conf"],
+      require => Exec["copy_conf_dir_${user}"],
       #notify  => Service["jboss-${user}"],
     }
 
@@ -64,7 +64,7 @@ define jbossas::instance (
       owner   => $user,
       group   => $group,
       mode    => 0644,
-      require => File["${jboss_profile_path}/${jboss_profile_name}/conf"],
+      require => Exec["copy_conf_dir_${user}"],
     }
 
     #Create JBoss service + set it to run on boot
